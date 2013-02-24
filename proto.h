@@ -2287,6 +2287,13 @@ PERL_CALLCONV SV*	Perl_magic_methcall(pTHX_ SV *sv, const MAGIC *mg, const char 
 #define PERL_ARGS_ASSERT_MAGIC_METHCALL	\
 	assert(sv); assert(mg); assert(meth)
 
+PERL_CALLCONV SV*	Perl_magic_methcall_sv(pTHX_ SV *sv, const MAGIC *mg, SV *meth, U32 flags, U32 argc, ...)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_3);
+#define PERL_ARGS_ASSERT_MAGIC_METHCALL_SV	\
+	assert(sv); assert(mg); assert(meth)
+
 PERL_CALLCONV int	Perl_magic_nextpack(pTHX_ SV *sv, MAGIC *mg, SV *key)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2)
@@ -5771,14 +5778,21 @@ STATIC char*	S_stdize_locale(pTHX_ char* locs)
 #  endif
 #endif
 #if defined(PERL_IN_MG_C)
-STATIC SV*	S_magic_methcall1(pTHX_ SV *sv, const MAGIC *mg, const char *meth, U32 flags, int n, SV *val)
+STATIC SV*	S_magic_methcall1(pTHX_ SV *sv, const MAGIC *mg, SV *meth, U32 flags, int n, SV *val)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2)
 			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT_MAGIC_METHCALL1	\
 	assert(sv); assert(mg); assert(meth)
 
-STATIC int	S_magic_methpack(pTHX_ SV *sv, const MAGIC *mg, const char *meth)
+STATIC SV*	S_magic_methcall_common(pTHX_ SV *sv, const MAGIC *mg, SV *meth, U32 flags, U32 argc, va_list *args)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_3);
+#define PERL_ARGS_ASSERT_MAGIC_METHCALL_COMMON	\
+	assert(sv); assert(mg); assert(meth)
+
+STATIC int	S_magic_methpack(pTHX_ SV *sv, const MAGIC *mg, SV *meth)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2)
 			__attribute__nonnull__(pTHX_3);
