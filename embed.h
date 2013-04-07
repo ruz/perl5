@@ -1391,7 +1391,6 @@
 #  endif
 #  if defined(PERL_IN_MG_C)
 #define magic_methcall1(a,b,c,d,e,f)	S_magic_methcall1(aTHX_ a,b,c,d,e,f)
-#define magic_methcall_common(a,b,c,d,e,f)	S_magic_methcall_common(aTHX_ a,b,c,d,e,f)
 #define magic_methpack(a,b,c)	S_magic_methpack(aTHX_ a,b,c)
 #define restore_magic(a)	S_restore_magic(aTHX_ a)
 #define save_magic(a,b)		S_save_magic(aTHX_ a,b)

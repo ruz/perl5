@@ -819,9 +819,6 @@ p	|int	|magic_set_all_env|NN SV* sv|NN MAGIC* mg
 p	|U32	|magic_sizepack	|NN SV* sv|NN MAGIC* mg
 p	|int	|magic_wipepack	|NN SV* sv|NN MAGIC* mg
 pod	|SV*	|magic_methcall	|NN SV *sv|NN const MAGIC *mg \
-				|NN const char *meth|U32 flags \
-				|U32 argc|...
-pod	|SV*	|magic_methcall_sv	|NN SV *sv|NN const MAGIC *mg \
 				|NN SV *meth|U32 flags \
 				|U32 argc|...
 Ap	|void	|markstack_grow
@@ -1795,9 +1792,6 @@ s	|void	|save_magic	|I32 mgs_ix|NN SV *sv
 s	|SV*	|magic_methcall1|NN SV *sv|NN const MAGIC *mg \
 				|NN SV *meth|U32 flags \
 				|int n|NULLOK SV *val
-s	|SV*	|magic_methcall_common	|NN SV *sv|NN const MAGIC *mg \
-				|NN SV *meth|U32 flags \
-				|U32 argc|NULLOK va_list *args
 s	|void	|restore_magic	|NULLOK const void *p
 s	|void	|unwind_handler_stack|NULLOK const void *p
 

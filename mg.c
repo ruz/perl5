@@ -1704,55 +1704,14 @@ Returns the SV (if any) returned by the method, or NULL on failure.
 */
 
 SV*
-Perl_magic_methcall(pTHX_ SV *sv, const MAGIC *mg, const char *methpv, U32 flags,
+Perl_magic_methcall(pTHX_ SV *sv, const MAGIC *mg, SV *meth, U32 flags,
 		    U32 argc, ...)
-{
-    SV* ret = NULL;
-    SV* meth;
-
-    PERL_ARGS_ASSERT_MAGIC_METHCALL;
-
-    meth = sv_2mortal(newSVpvn_share(methpv, strlen(methpv),0));
-
-    if (argc > 0 && !(flags & G_UNDEF_FILL)) {
-	va_list args;
-	va_start(args, argc);
-	ret = S_magic_methcall_common(aTHX_ sv, mg, meth, flags, argc, &args);
-	va_end(args);
-    } else {
-	return S_magic_methcall_common(aTHX_ sv, mg, meth, flags, argc, NULL);
-    }
-    return ret;
-}
-
-SV*
-Perl_magic_methcall_sv(pTHX_ SV *sv, const MAGIC *mg, SV *meth, U32 flags,
-		    U32 argc, ...)
-{
-    SV* ret = NULL;
-
-    PERL_ARGS_ASSERT_MAGIC_METHCALL_SV;
-
-    if (argc > 0 && !(flags & G_UNDEF_FILL)) {
-	va_list args;
-	va_start(args, argc);
-	ret = S_magic_methcall_common(aTHX_ sv, mg, meth, flags, argc, &args);
-	va_end(args);
-    } else {
-	return S_magic_methcall_common(aTHX_ sv, mg, meth, flags, argc, NULL);
-    }
-    return ret;
-}
-
-STATIC SV*
-S_magic_methcall_common(pTHX_ SV *sv, const MAGIC *mg, SV *meth, U32 flags,
-		    U32 argc, va_list *args)
 {
     dVAR;
     dSP;
     SV* ret = NULL;
 
-    PERL_ARGS_ASSERT_MAGIC_METHCALL_COMMON;
+    PERL_ARGS_ASSERT_MAGIC_METHCALL;
 
     ENTER;
 
@@ -1774,10 +1733,15 @@ S_magic_methcall_common(pTHX_ SV *sv, const MAGIC *mg, SV *meth, U32 flags,
 	    PUSHs(&PL_sv_undef);
 	}
     } else if (argc > 0) {
+	va_list args;
+	va_start(args, argc);
+
 	do {
-	    SV *const sv = va_arg(*args, SV *);
+	    SV *const sv = va_arg(args, SV *);
 	    PUSHs(sv);
 	} while (--argc);
+
+	va_end(args);
     }
     PUTBACK;
     if (flags & G_DISCARD) {
@@ -1793,8 +1757,6 @@ S_magic_methcall_common(pTHX_ SV *sv, const MAGIC *mg, SV *meth, U32 flags,
     LEAVE;
     return ret;
 }
-
-
 
 /* wrapper for magic_methcall that creates the first arg */
 
@@ -1819,9 +1781,9 @@ S_magic_methcall1(pTHX_ SV *sv, const MAGIC *mg, SV *meth, U32 flags,
 	sv_2mortal(arg1);
     }
     if (!arg1) {
-	return Perl_magic_methcall_sv(aTHX_ sv, mg, meth, flags, n - 1, val);
+	return Perl_magic_methcall(aTHX_ sv, mg, meth, flags, n - 1, val);
     }
-    return Perl_magic_methcall_sv(aTHX_ sv, mg, meth, flags, n, arg1, val);
+    return Perl_magic_methcall(aTHX_ sv, mg, meth, flags, n, arg1, val);
 }
 
 STATIC int
@@ -1916,7 +1878,7 @@ Perl_magic_wipepack(pTHX_ SV *sv, MAGIC *mg)
 
     PERL_ARGS_ASSERT_MAGIC_WIPEPACK;
 
-    Perl_magic_methcall(aTHX_ sv, mg, "CLEAR", G_DISCARD, 0);
+    Perl_magic_methcall(aTHX_ sv, mg, SV_CONST(CLEAR), G_DISCARD, 0);
     return 0;
 }
 
@@ -1928,8 +1890,8 @@ Perl_magic_nextpack(pTHX_ SV *sv, MAGIC *mg, SV *key)
 
     PERL_ARGS_ASSERT_MAGIC_NEXTPACK;
 
-    ret = SvOK(key) ? Perl_magic_methcall(aTHX_ sv, mg, "NEXTKEY", 0, 1, key)
-	: Perl_magic_methcall(aTHX_ sv, mg, "FIRSTKEY", 0, 0);
+    ret = SvOK(key) ? Perl_magic_methcall(aTHX_ sv, mg, SV_CONST(NEXTKEY), 0, 1, key)
+	: Perl_magic_methcall(aTHX_ sv, mg, SV_CONST(FIRSTKEY), 0, 0);
     if (ret)
 	sv_setsv(key,ret);
     return 0;
@@ -1966,7 +1928,7 @@ Perl_magic_scalarpack(pTHX_ HV *hv, MAGIC *mg)
     }
    
     /* there is a SCALAR method that we can call */
-    retval = Perl_magic_methcall(aTHX_ MUTABLE_SV(hv), mg, "SCALAR", 0, 0);
+    retval = Perl_magic_methcall(aTHX_ MUTABLE_SV(hv), mg, SV_CONST(SCALAR), 0, 0);
     if (!retval)
 	retval = &PL_sv_undef;
     return retval;
